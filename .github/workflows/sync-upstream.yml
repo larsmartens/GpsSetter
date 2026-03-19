@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  workflows: write
 
 concurrency:
   group: sync-upstream
@@ -40,6 +39,10 @@ jobs:
           echo "behind=$BEHIND" >> "$GITHUB_OUTPUT"
           echo "Upstream is $BEHIND commit(s) ahead"
 
+      - name: Capture fork baseline
+        id: base
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Merge upstream
         if: steps.check.outputs.behind != '0'
         run: |
@@ -48,6 +51,15 @@ jobs:
             git add -A
             git commit --no-edit
           }
+
+      - name: Restore fork workflows
+        if: steps.check.outputs.behind != '0'
+        run: |
+          git restore --source="${{ steps.base.outputs.sha }}" --staged --worktree .github/workflows || true
+          if ! git diff --quiet -- .github/workflows; then
+            git add .github/workflows
+            git commit -m "chore: preserve fork workflows after upstream sync"
+          fi
 
       - name: Push synced branch
         if: steps.check.outputs.behind != '0'
