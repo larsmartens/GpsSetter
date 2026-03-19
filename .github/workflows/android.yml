@@ -22,7 +22,7 @@ jobs:
         cache: gradle
 
     - name: Set up Android SDK
-      uses: android-actions/setup-android@v2
+      uses: android-actions/setup-android@v3
       with:
         api-level: 30
         build-tools: '30.0.3'
@@ -40,13 +40,13 @@ jobs:
       run: ./gradlew assembleRelease
 
     - name: Upload Debug APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
 
     - name: Upload Release APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-apk
-        path: app/build/outputs/apk/release/app-release.apk
+      uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
