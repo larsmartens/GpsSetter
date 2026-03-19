@@ -76,9 +76,6 @@ jobs:
       - name: Set up Android SDK
         if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         uses: android-actions/setup-android@v3
-        with:
-          api-level: 30
-          build-tools: '30.0.3'
 
       - name: Create local.properties
         if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
