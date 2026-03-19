@@ -81,6 +81,10 @@ jobs:
         if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         run: echo "sdk.dir=$ANDROID_SDK_ROOT" > ./local.properties
 
+      - name: Inject CI maps placeholder
+        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
+        run: sed -i 's/${MAPS_API_KEY}/ci-placeholder-maps-api-key/' app/src/main/AndroidManifest.xml
+
       - name: Build APKs
         if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         run: |
