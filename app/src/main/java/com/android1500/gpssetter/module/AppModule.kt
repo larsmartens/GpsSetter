@@ -30,7 +30,7 @@ object AppModule{
     @Provides
     fun createGitHubService(): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.github.com/repos/Android1500/GpsSetter/")
+            .baseUrl("https://api.github.com/repos/larsmartens/GpsSetter/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -73,6 +73,5 @@ object AppModule{
     fun providesApplicationScope() = CoroutineScope(SupervisorJob())
 
 }
-
 
 

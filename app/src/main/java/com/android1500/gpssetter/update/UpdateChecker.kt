@@ -47,9 +47,9 @@ class UpdateChecker @Inject constructor(private val apiResponse : GitHubService)
                             body,
                             publishedAt,
                             asset?.browserDownloadUrl
-                                ?: "https://github.com/Android1500/GpsSetter/releases",
+                                ?: "https://github.com/larsmartens/GpsSetter/releases",
                             asset?.name ?: "app-release.apk",
-                            releaseUrl ?: "https://github.com/Android1500/GpsSetter/releases"
+                            releaseUrl ?: "https://github.com/larsmartens/GpsSetter/releases"
                         )
                     ).isSuccess
                 }
@@ -84,4 +84,3 @@ class UpdateChecker @Inject constructor(private val apiResponse : GitHubService)
     data class Update(val name: String, val changelog: String, val timestamp: String, val assetUrl: String, val assetName: String, val releaseUrl: String):
         Parcelable
 }
-

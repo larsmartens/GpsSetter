@@ -37,6 +37,11 @@ jobs:
         run: |
           BEHIND=$(git rev-list HEAD..upstream/master --count)
           echo "behind=$BEHIND" >> "$GITHUB_OUTPUT"
+          if [ "$BEHIND" != "0" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          fi
           echo "Upstream is $BEHIND commit(s) ahead"
 
       - name: Capture fork baseline
@@ -66,7 +71,6 @@ jobs:
         run: git push origin master
 
       - name: Set up JDK 17
-        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-java@v4
         with:
           java-version: '17'
@@ -74,28 +78,41 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
-        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         uses: android-actions/setup-android@v3
 
       - name: Create local.properties
-        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         run: echo "sdk.dir=$ANDROID_SDK_ROOT" > ./local.properties
 
       - name: Inject CI maps placeholder
-        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         run: sed -i 's/${MAPS_API_KEY}/ci-placeholder-maps-api-key/' app/src/main/AndroidManifest.xml
 
+      - name: Read release version
+        id: version
+        run: |
+          VERSION=$(sed -n "s/^def tagName = '\\([^']*\\)'/\\1/p" app/build.gradle | head -n 1)
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Build APKs
-        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug assembleRelease
 
       - name: Upload build artifacts
-        if: steps.check.outputs.behind != '0' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: gpssetter-sync-build
+          name: gpssetter-sync-build-${{ steps.version.outputs.version }}
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             app/build/outputs/apk/release/app-release.apk
+
+      - name: Create GitHub release
+        if: steps.check.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: GpsSetter ${{ steps.version.outputs.version }}
+          body: Automated fork build for ${{ steps.version.outputs.version }}.
+          files: app/build/outputs/apk/release/app-release.apk
+          fail_on_unmatched_files: true
+          make_latest: true
+          overwrite_files: true
