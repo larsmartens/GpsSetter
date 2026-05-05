@@ -102,8 +102,8 @@ jobs:
         with:
           name: gpssetter-sync-build-${{ steps.version.outputs.version }}
           path: |
-            app/build/outputs/apk/debug/app-debug.apk
-            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
 
       - name: Create GitHub release
         if: steps.check.outputs.should_release == 'true'
@@ -112,7 +112,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           name: GpsSetter ${{ steps.version.outputs.version }}
           body: Automated fork build for ${{ steps.version.outputs.version }}.
-          files: app/build/outputs/apk/release/app-release.apk
+          files: app/build/outputs/apk/release/*.apk
           fail_on_unmatched_files: true
           make_latest: true
           overwrite_files: true
