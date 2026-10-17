@@ -1,10 +1,8 @@
 name: Android CI
 
+# Automatic triggers paused at the owner's request on 2026-10-17.
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
